@@ -1,4 +1,4 @@
-import gecko
+import Gecko.gecko as gecko
 
 g = gecko.Gecko()
 
