@@ -31,6 +31,7 @@ path_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
 def screen_pos(position):
     return position*[1,-1]+HALF_SCREEN
 
+# Update screen
 def update():
     screen.fill(BACKGROUND_COLOR)
     screen.blit(path_surface, (0,0))
@@ -62,15 +63,17 @@ class Gecko:
         self.trace_gecko = True
         self.show_gecko = True
 
-        # Update screen when turtle moves (will make it slower)
+        # Update screen when gecko moves (will make it slower)
         self.auto_update = True
 
         self.first_position = self.position.copy()
         self.set_last_position()
 
+        self._update()
+
     def _update(self):
 
-        if self.auto_update == True:
+        if self.auto_update:
             update()
 
     @property
@@ -89,15 +92,16 @@ class Gecko:
         
         return p
 
-    def tracing_on(self):
+    # Whether to draw path
+    def pendown(self):
         self.trace_gecko = True
 
-    def tracing_off(self):
+    def penup(self):
         self.trace_gecko = False
         
     def set_last_position(self):
         self.last_position = self.position.copy()
-        
+
     def show(self):
         self.show_gecko = True
         self._update()
@@ -180,11 +184,11 @@ class Gecko:
             draw_line(self.pencolor, screen_pos(self.last_position), screen_pos(self.position), self.pensize)
             self.set_last_position()
 
-
+    # Clone a gecko save it in a variable
     def clone(self, name):
         clone = Gecko()
         globals().update({name: clone})
-        clone.tracing_off()
+        clone.penup()
         
         clone.position = self.position
         clone.angle = self.angle
@@ -194,12 +198,14 @@ class Gecko:
         clone.pencolor = self.pencolor
         clone.pensize = self.pensize
 
-        clone.tracing_on()
+        clone.pendown()
 
         return clone
 
     def __repr__(self):
         return f"Gecko object at [{round(self.position[0],1)}, {round(self.position[1],1)}]"
+
+    __str__ = __repr__
 
 def q():
     pygame.quit()
@@ -214,22 +220,25 @@ def main():
     g.auto_update = False
     test = 0
     g.hide()
-    for k in range(16383):
+    
+    for k in range(2**14-1):
         for i in range(2):
             if i == 0:
-                g.set_pencolor((0,128-k//128,255-k//64))
+                g.set_pencolor((0,128-k//2**7,255-k//2**6))
             else:
-                g.set_pencolor((255-k//64,128-k//128,0))
+                g.set_pencolor((255-k//2**6,128-k//2**7,0))
             for n in range(180):
                 test += 1
                 g.forward((k+1)/3000)
                 g.rotate(2*(2*(i%2)-1))
-        if not k%20:
+                
+        if not k % 20:
             update()
+            
     print(test)
 
 if __name__ == '__main__':
     print("Enter 'q()' to close the window")
-    main()
+    #main()
 else:
     print("Gecko has been loaded. Enter 'gecko.q()' to close the window")
