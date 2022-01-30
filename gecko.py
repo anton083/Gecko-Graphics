@@ -1,3 +1,11 @@
+"""
+Anton Oresten Sollman
+
+Created Oct 2021
+
+@COPYLEFT ALL WRONGS RESERVED
+"""
+
 import sys, os
 import time
 import math
@@ -7,6 +15,8 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 import pygame
 import numpy as np
+
+pygame.font.init()
 
 # An empty color with zero alpha
 empty = pygame.Color(0,0,0,0)
@@ -38,11 +48,12 @@ def update():
     
     for gecko in geckos:
         gecko.draw_body()
+        screen.blit(gecko.surf, (0,0))
         
     pygame.display.update()
 
-def draw_line(color, start, end, width=1):
-    pygame.draw.line(path_surface, color, start, end, width)
+def draw_line(color, start, end, width=1, surf=path_surface):
+    pygame.draw.line(surf, color, start, end, width)
 
 geckos = []
 
@@ -69,6 +80,8 @@ class Gecko:
         self.first_position = self.position.copy()
         self.set_last_position()
 
+        self.surf = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+
         self._update()
 
     def _update(self):
@@ -91,6 +104,18 @@ class Gecko:
         }
         
         return p
+
+    # Write some text    
+    def write(self, text):
+        font = pygame.font.SysFont('Calibri', 12)
+        screen_position = screen_pos(self.position)
+        self.surf.blit(font.render(text, True, self.pencolor), (screen_position[0]+8, screen_position[1]-5))
+        self._update()
+
+    def clear(self, update=True):
+        self.surf.fill(empty)
+        if update:
+            self._update()
 
     # Whether to draw path
     def pendown(self):
@@ -118,6 +143,9 @@ class Gecko:
         self.pencolor = pygame.Color(color)
         self._update()
 
+    def set_angle(self, angle):
+        self.angle = angle
+
     def rotate(self, angle):
         self.angle += angle
 
@@ -127,15 +155,16 @@ class Gecko:
     def right(self, angle):
         self.rotate(-angle)
 
-    def set_position(self, *position):
+    def set_position(self, position, draw_line=True):
         if len(position) == 1:
-            position = np.array(*position)
+            position = np.array(*position, dtype=np.float64)
         elif len(position) == 2:
-            position = np.array(position)
+            position = np.array(position, dtype=np.float64)
         else:
             raise ValueError
         self.position = position
-        self.draw_path_line()
+        if draw_line:
+            self.draw_path_line()
         self._update()
 
     # Aliases for set_position
@@ -143,9 +172,9 @@ class Gecko:
 
     def move(self, *offset):
         if len(offset) == 1:
-            offset = np.array(*offset)
+            offset = np.array(*offset, dtype=np.float64)
         elif len(offset) == 2:
-            offset = np.array(offset)
+            offset = np.array(offset, dtype=np.float64)
         else:
             raise ValueError
         self.position += offset
@@ -181,8 +210,8 @@ class Gecko:
 
     def draw_path_line(self):
         if self.trace_gecko:
-            draw_line(self.pencolor, screen_pos(self.last_position), screen_pos(self.position), self.pensize)
-            self.set_last_position()
+            draw_line(self.pencolor, screen_pos(self.last_position), screen_pos(self.position), self.pensize, self.surf)
+        self.set_last_position()
 
     # Clone a gecko save it in a variable
     def clone(self, name):
@@ -212,6 +241,8 @@ def q():
 
 def main():
 
+    # This is a complete mess, but produces a nice looking animation and an even nicer result.
+
     g = Gecko()
     g.right(90)
     g.set_color(pygame.Color(255,0,0))
@@ -220,18 +251,22 @@ def main():
     g.auto_update = False
     test = 0
     g.hide()
-    
-    for k in range(2**14-1):
+
+    # num > 7
+    num = 6
+        
+    for k in range(2**(8+num)-1):
         for i in range(2):
             if i == 0:
-                g.set_pencolor((0,128-k//2**7,255-k//2**6))
+                g.set_pencolor((0,128-k//2**(1+num),255-k//2**num))
             else:
-                g.set_pencolor((255-k//2**6,128-k//2**7,0))
+                g.set_pencolor((255-k//2**num,128-k//2**(1+num),0))
             for n in range(180):
                 test += 1
                 g.forward((k+1)/3000)
                 g.rotate(2*(2*(i%2)-1))
-                
+
+        # update after every 20 loops (when k is divisible by 20)
         if not k % 20:
             update()
             
@@ -239,6 +274,6 @@ def main():
 
 if __name__ == '__main__':
     print("Enter 'q()' to close the window")
-    #main()
+    main()
 else:
     print("Gecko has been loaded. Enter 'gecko.q()' to close the window")
