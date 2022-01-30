@@ -1,5 +1,22 @@
 from gecko import Gecko, update
 
+def right_angle(g, direction):
+    d = direction
+    
+    g.set_pencolor(black)
+    g.penup()
+    g.forward(15)
+    g.rotate(d*90)
+    g.pendown()
+    g.forward(15)
+    g.rotate(d*90)
+    g.forward(15)
+    g.rotate(d*90)
+    g.penup()
+    g.forward(15)
+    g.rotate(d*90)
+    g.pendown()
+
 angle_step = 0.02
 min_angle = 0
 max_angle = 40
@@ -38,20 +55,7 @@ while angle <= max_angle:
     g.forward(dist1*scale/2)
     g.left(90)
 
-    # Right angle thing
-    g.set_pencolor(black)
-    g.penup()
-    g.forward(15)
-    g.left(90)
-    g.pendown()
-    g.forward(15)
-    g.left(90)
-    g.forward(15)
-    g.left(90)
-    g.penup()
-    g.forward(15)
-    g.left(90)
-    g.pendown()
+    right_angle(g, 1)
     
     g.set_pencolor(green)
     g.forward(dist2*scale/2)
@@ -59,20 +63,7 @@ while angle <= max_angle:
     g.forward(dist2*scale/2)
     g.right(90)
 
-    # Right angle thing
-    g.set_pencolor(black)
-    g.penup()
-    g.forward(15)
-    g.right(90)
-    g.pendown()
-    g.forward(15)
-    g.right(90)
-    g.forward(15)
-    g.right(90)
-    g.penup()
-    g.forward(15)
-    g.right(90)
-    g.pendown()
+    right_angle(g, -1)
     
     g.set_pencolor(blue)
     g.forward(dist3*scale/2)
