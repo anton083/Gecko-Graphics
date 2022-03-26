@@ -256,6 +256,9 @@ def main():
     num = 6
         
     for k in range(2**(8+num)-1):
+        if not k % 5:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:import sys;pygame.quit(); sys.exit()
         for i in range(2):
             if i == 0:
                 g.set_pencolor((0,128-k//2**(1+num),255-k//2**num))

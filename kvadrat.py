@@ -46,7 +46,6 @@ while angle <= max_angle:
 
     g.set_angle(angle)
 
-
     # I split the lines into two parts so I can take a pause
     # and write the text in the middle
     g.set_pencolor(red)
@@ -72,6 +71,7 @@ while angle <= max_angle:
 
     x, y = g.position
     side_length = round((x+y)/2/scale,1)
+    rounded_angle = round(angle, 2)
 
     g.set_pencolor(black)
 
@@ -85,8 +85,8 @@ while angle <= max_angle:
 
     update()
 
-    if round(x,1) == round(y,1):
-        rounded_angle = round(angle, 2)
+    if y > x:
+        rounded_angle = round(angle, 3)
         print("Side length found!", side_length, "cm")
         print("The angle should be roughly", rounded_angle)
 
@@ -95,19 +95,15 @@ while angle <= max_angle:
         circumference = 3.14159*x*1.41421
         for n in range(360):
 
-            # I learned about this today.
-            # It's apparently very efficient compared to doing a bunch of ifs.
-            match n:
-                case 120:
-                    g.write('hehe')
-                case 186:
-                    g.write(f'angle = {rounded_angle}')
+            if n == 186:
+                g.write(f'angle = {rounded_angle}')
 
             g.set_pencolor(colors[n//90])
             g.left(1)
             g.forward(circumference/360)
             update()
-        
+        g.write('yay')
+        update()
         break
 
     g.clear()
